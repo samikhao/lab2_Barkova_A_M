@@ -38,14 +38,12 @@ export default function NewsDetailPage() {
     return String(user.id) === String(news.author_id);
   }, [user, news]);
 
-  const canEditOrDeleteNews = Boolean(isAuthenticated && (user?.is_admin || isOwnerNews));
+  const canEditOrDeleteNews = Boolean((user?.is_admin || isOwnerNews));
 
   const load = async () => {
     setError("");
     setLoading(true);
     try {
-      if (!isAuthenticated) throw new Error("Missing bearer token");
-
       const list = await getNewsList();
       const n = (Array.isArray(list) ? list : []).find((x) => x.id === newsId);
       if (!n) throw new Error("News not found");
@@ -67,7 +65,7 @@ export default function NewsDetailPage() {
 
   useEffect(() => {
     load();
-  }, [newsId, isAuthenticated]);
+  }, [newsId]);
 
   const onAddComment = async (text) => {
     try {
@@ -129,12 +127,6 @@ export default function NewsDetailPage() {
       <div className={styles.breadcrumbs}>
         <Link to="/" className={styles.linkInline}>← к списку</Link>
       </div>
-
-      {!isAuthenticated && (
-        <div className={styles.errorBox}>
-          Чтобы увидеть новость и комментарии — нужно войти (эндпоинты защищены <code>require_authenticated</code>).
-        </div>
-      )}
 
       {error && <div className={styles.errorBox}>{error}</div>}
       {loading && <div className={styles.muted}>Загрузка...</div>}
