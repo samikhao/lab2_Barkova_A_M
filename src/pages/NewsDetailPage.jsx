@@ -33,29 +33,26 @@ export default function NewsDetailPage() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
 
-  const isOwnerNews = useMemo(() => {
-    if (!user || !news) return false;
-    return String(user.id) === String(news.author_id);
-  }, [user, news]);
+  const isOwnerNews = user && news && user.id === news.author_id;
 
-  const canEditOrDeleteNews = Boolean((user?.is_admin || isOwnerNews));
+  const canEditOrDeleteNews = user && (user.is_admin || isOwnerNews);
 
   const load = async () => {
     setError("");
     setLoading(true);
     try {
       const list = await getNewsList();
-      const n = (Array.isArray(list) ? list : []).find((x) => x.id === newsId);
+      const n = list.find((x) => x.id === newsId);
       if (!n) throw new Error("News not found");
       setNews(n);
       setEditTitle(n.title || "");
       setEditContent(renderContent(n.content));
 
       const all = await listComments();
-      const filtered = (Array.isArray(all) ? all : []).filter((c) => c.news_id === newsId);
+      const filtered = all.filter((c) => c.news_id === newsId);
       setComments(filtered);
     } catch (e) {
-      setError(e?.response?.data?.detail || e.message || "Не удалось загрузить новость.");
+      setError("Не удалось загрузить новость.");
       setNews(null);
       setComments([]);
     } finally {
@@ -72,7 +69,7 @@ export default function NewsDetailPage() {
       await createComment({ text, news_id: newsId });
       await load();
     } catch (e) {
-      alert(e?.response?.data?.detail || "Не удалось добавить комментарий.");
+      alert("Не удалось добавить комментарий.");
     }
   };
 
@@ -81,7 +78,7 @@ export default function NewsDetailPage() {
       await patchComment(commentId, { text });
       await load();
     } catch (e) {
-      alert(e?.response?.data?.detail || "Не удалось отредактировать комментарий.");
+      alert("Не удалось отредактировать комментарий.");
     }
   };
 
@@ -91,8 +88,7 @@ export default function NewsDetailPage() {
       await deleteComment(commentId);
       await load();
     } catch (e) {
-      alert(
-        e?.response?.data?.detail || "Не удалось удалить комментарий.");
+      alert("Не удалось удалить комментарий.");
     }
   };
 
@@ -102,7 +98,7 @@ export default function NewsDetailPage() {
       await deleteNews(newsId);
       nav("/");
     } catch (e) {
-      alert(e?.response?.data?.detail || "Не удалось удалить новость.");
+      alert("Не удалось удалить новость.");
     }
   };
 
@@ -116,11 +112,11 @@ export default function NewsDetailPage() {
       setEditMode(false);
       await load();
     } catch (e) {
-      alert(e?.response?.data?.detail || "Не удалось сохранить изменения новости.");
+      alert("Не удалось сохранить изменения новости.");
     }
   };
 
-  const contentText = useMemo(() => renderContent(news?.content), [news]);
+  const contentText = news ? renderContent(news.content) : "";
 
   return (
     <section className={styles.page}>
@@ -138,7 +134,7 @@ export default function NewsDetailPage() {
             <div className={styles.meta}>
               <span>ID: {news.id}</span>
               <span>Author ID: {news.author_id}</span>
-              {news.published_at && <span>{new Date(news.published_at).toLocaleString()}</span>}
+              <span>{new Date(news.published_at).toLocaleString()}</span>
             </div>
 
             {canEditOrDeleteNews && (
@@ -191,9 +187,9 @@ export default function NewsDetailPage() {
 
           <div className={styles.commentsList}>
             {comments.map((c) => {
-              const isOwner = user?.id != null && String(user.id) === String(c.author_id);
-              const canEdit = Boolean(isAuthenticated && (user?.is_admin || isOwner));
-              const canDelete = Boolean(isAuthenticated && (user?.is_admin || isOwner));
+              const isOwner = user && user.id === c.author_id;
+              const canEdit = isAuthenticated && (user.is_admin || isOwner);
+              const canDelete = isAuthenticated && (user.is_admin || isOwner);
               return (
                 <CommentItem
                   key={c.id}

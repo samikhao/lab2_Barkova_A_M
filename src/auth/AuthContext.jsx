@@ -6,9 +6,8 @@ import { listUsers } from "../api/users.js";
 const AuthContext = createContext(null);
 
 function getUidFromAccess(token) {
-  const payload = decodeJwtPayload(token) || {};
-  // у тебя в refresh payload ключ "uid"
-  return payload.uid ?? payload.sub ?? payload.user_id ?? payload.id ?? null;
+  const payload = decodeJwtPayload(token);
+  return payload.uid;
 }
 
 export function AuthProvider({ children }) {
@@ -27,15 +26,14 @@ export function AuthProvider({ children }) {
 
     try {
       const users = await listUsers();
-      const me = Array.isArray(users) ? users.find((u) => String(u.id) === String(uid)) : null;
+      const me = users.find(u => u.id === uid);
 
-      // если is_admin не приходит в UserRead — будем считать false
       setUser(
         me
           ? {
               ...me,
-              is_admin: Boolean(me.is_admin), // если нет поля — будет false
-              is_verified_author: Boolean(me.is_verified_author),
+              is_admin: me.is_admin,
+              is_verified_author: me.is_verified_author,
             }
           : { id: uid, is_admin: false, is_verified_author: false }
       );
@@ -48,7 +46,6 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     reloadUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async ({ email, password }) => {
@@ -59,9 +56,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    try {
-      await apiLogout();
-    } catch {}
+    await apiLogout();
     clearTokens();
     setUser(null);
   };
@@ -70,7 +65,7 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       loading,
-      isAuthenticated: Boolean(getAccessToken()),
+      isAuthenticated: Boolean(user) && !loading,
       login,
       logout,
       reloadUser,

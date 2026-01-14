@@ -2,17 +2,13 @@ import { useMemo, useState } from "react";
 import styles from "../styles/news.module.css";
 
 export default function CommentItem({ comment, canEdit, canDelete, onEdit, onDelete }) {
-  const dt = useMemo(() => {
-    if (!comment?.published_at) return null;
-    try {
-      return new Date(comment.published_at).toLocaleString();
-    } catch {
-      return null;
-    }
-  }, [comment]);
+  const dt = useMemo(
+    () => new Date(comment.published_at).toLocaleString(),
+    [comment.published_at]
+  );
 
   const [isEditing, setIsEditing] = useState(false);
-  const [text, setText] = useState(comment?.text ?? "");
+  const [text, setText] = useState(comment.text);
 
   const save = async () => {
     const trimmed = text.trim();

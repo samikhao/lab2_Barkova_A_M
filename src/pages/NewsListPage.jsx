@@ -13,9 +13,9 @@ export default function NewsListPage() {
     setLoading(true);
     try {
       const data = await getNewsList();
-      setItems(Array.isArray(data) ? data : []);
+      setItems(data);
     } catch (e) {
-      setError(e?.response?.data?.detail || "Не удалось загрузить новости.");
+      setError("Не удалось загрузить новости.");
       setItems([]);
     } finally {
       setLoading(false);

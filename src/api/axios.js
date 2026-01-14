@@ -64,7 +64,7 @@ api.interceptors.response.use(
         return api(original);
       } catch (e) {
         clearTokens();
-        flushQueue(null);
+        flushQueue("");
         return Promise.reject(e);
       } finally {
         isRefreshing = false;

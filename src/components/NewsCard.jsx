@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import styles from "../styles/news.module.css";
 
 export default function NewsCard({ item }) {
-  const dt = item?.published_at ? new Date(item.published_at) : null;
+  const dt = new Date(item.published_at);
 
   return (
     <article className={styles.card}>
@@ -15,7 +15,7 @@ export default function NewsCard({ item }) {
       <div className={styles.meta}>
         <span>ID: {item.id}</span>
         <span>Author ID: {item.author_id}</span>
-        {dt && <span>{dt.toLocaleString()}</span>}
+        <span>{dt.toLocaleString()}</span>
       </div>
 
       {item.cover_url && <img className={styles.cover} src={item.cover_url} alt="cover" />}

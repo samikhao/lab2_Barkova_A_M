@@ -28,7 +28,7 @@ export default function LoginPage() {
       await login({ email: em, password: pw });
       nav("/");
     } catch (e2) {
-      setError(e2?.response?.data?.detail || "Не удалось войти.");
+      setError("Не удалось войти.");
     } finally {
       setLoading(false);
     }

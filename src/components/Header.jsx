@@ -6,7 +6,7 @@ export default function Header() {
   const { user, isAuthenticated, logout, loading } = useAuth();
   const navigate = useNavigate();
 
-  const canCreateNews = Boolean(user?.is_admin || user?.is_verified_author);
+  const canCreateNews = user && (user.is_admin || user.is_verified_author);
 
   const onLogout = async () => {
     await logout();
@@ -41,10 +41,10 @@ export default function Header() {
           ) : isAuthenticated ? (
             <div className={styles.userBox}>
               <div className={styles.userLine}>
-                <span className={styles.userName}>{user?.name || user?.email || `id=${user?.id}`}</span>
+                <span className={styles.userName}>{user.name || user.email || `id=${user.id}`}</span>
                 <span className={styles.badges}>
-                  {user?.is_admin && <span className={styles.badge}>admin</span>}
-                  {user?.is_verified_author && <span className={styles.badge}>author</span>}
+                  {user.is_admin && <span className={styles.badge}>admin</span>}
+                  {user.is_verified_author && <span className={styles.badge}>author</span>}
                 </span>
               </div>
               <button className={styles.btn} onClick={onLogout}>

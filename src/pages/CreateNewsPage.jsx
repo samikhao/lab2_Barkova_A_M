@@ -8,9 +8,7 @@ export default function CreateNewsPage() {
   const { user, isAuthenticated } = useAuth();
   const nav = useNavigate();
 
-  const canCreate = useMemo(() => {
-    return Boolean(isAuthenticated && (user?.is_admin || user?.is_verified_author));
-  }, [isAuthenticated, user]);
+  const canCreate = isAuthenticated && user && (user.is_admin || user.is_verified_author);
 
   const [title, setTitle] = useState("");
   const [contentText, setContentText] = useState("");
@@ -21,11 +19,6 @@ export default function CreateNewsPage() {
     e.preventDefault();
     setError("");
 
-    if (!canCreate) {
-      setError("Недостаточно прав для создания новости (нужен verified author или admin).");
-      return;
-    }
-
     const t = title.trim();
     const c = contentText.trim();
     if (!t || !c) {
@@ -35,10 +28,10 @@ export default function CreateNewsPage() {
 
     setSaving(true);
     try {
-      const created = await createNews({ title: t, content: { text: c }, cover_url: null });
+      const created = await createNews({ title: t, content: { text: c } });
       nav(`/news/${created.id}`);
     } catch (e2) {
-      setError(e2?.response?.data?.detail || "Не удалось создать новость.");
+      setError("Не удалось создать новость.");
     } finally {
       setSaving(false);
     }
