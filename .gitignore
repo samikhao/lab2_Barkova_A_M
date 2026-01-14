@@ -25,3 +25,7 @@ lerna-debug.log*
 
 .vscode/*
 !.vscode/extensions.json
+
+e2e/
+playwright.config.js
+test-results/
